@@ -1,6 +1,7 @@
 ![Python](https://img.shields.io/badge/Python-3.10-blue)
 ![License](https://img.shields.io/badge/License-MIT-green)
-![Status](https://img.shields.io/badge/Status-Production_Ready-brightgreen)# Risk Analysis Platform
+![Status](https://img.shields.io/badge/Status-Production_Ready-brightgreen)
+# Risk Analysis Platform
 
 ## Monte Carlo Risk Analysis for Mega Infrastructure Projects
 
