@@ -81,7 +81,7 @@ The platform models 13 major construction risks:
 - Interactive risk visualization
 - User-friendly interface
 ![Risk Analysis Platform Dashboard](screenshot.png)
-(Then upload a screenshot of your software)
+
 
 
 
