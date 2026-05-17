@@ -687,17 +687,29 @@ def normalize_impact(row, direct_cost, project_duration):
 # ACTIVITY-LEVEL UTILITIES
 # ============================================================================
 def generate_activity_durations(activities_df, iterations):
+    """Generate random activity durations using Triangular distribution."""
     n_activities = len(activities_df)
     durations_matrix = np.zeros((iterations, n_activities))
+    
     for idx, row in activities_df.iterrows():
         base_duration = row['Original Duration']
-        opt = max(1, base_duration * 0.85)
-        ml = base_duration
-        pess = base_duration * 1.15
+        
+        # Triangular distribution parameters (symmetric ±15%)
+        a = max(1, base_duration * 0.85)      # Minimum (Optimistic)
+        b = base_duration                      # Most Likely
+        c = base_duration * 1.15               # Maximum (Pessimistic)
+        
         for iter_num in range(iterations):
-            beta_sample = np.random.beta(4, 4)
-            pert_value = opt + beta_sample * (pess - opt)
-            durations_matrix[iter_num, idx] = pert_value
+            U = np.random.random()
+            F = (b - a) / (c - a) if (c - a) > 0 else 1
+            
+            if U < F:
+                triangular_value = a + np.sqrt(U * (c - a) * (b - a))
+            else:
+                triangular_value = c - np.sqrt((1 - U) * (c - a) * (c - b))
+            
+            durations_matrix[iter_num, idx] = triangular_value
+    
     return durations_matrix
 
 def get_enhanced_risk_task_mapping(activities_df):
@@ -765,20 +777,22 @@ def run_monte_carlo_full_optimized(risk_df, base_duration, base_total_cost, indi
     lhs_samples = latin_hypercube_sampling(iterations, n_risks)
     
     # Activity uncertainty configuration
-    uncertainty_pct = st.session_state.get('uncertainty_value', 10) / 100
+    uncertainty_pct = st.session_state.get('uncertainty_value', 15) / 100
     
-    # Triangular distribution for activity uncertainty (0% to uncertainty_pct%)
-    U = np.random.random(iterations)
-    a = 0
-    b = 0
-    c = uncertainty_pct
-    F = (b - a) / (c - a) if (c - a) > 0 else 1
+    # Triangular distribution for activity uncertainty (symmetric ± uncertainty_pct%)
+    U_act = np.random.random(iterations)
+    a_act = base_duration * (1 - uncertainty_pct)   # Minimum (Optimistic)
+    b_act = base_duration                            # Most Likely
+    c_act = base_duration * (1 + uncertainty_pct)    # Maximum (Pessimistic)
+    
+    F_act = (b_act - a_act) / (c_act - a_act) if (c_act - a_act) > 0 else 1
+    
     activity_uncertainty = np.where(
-        U < F,
-        a + np.sqrt(U * (c - a) * (b - a)),
-        c - np.sqrt((1 - U) * (c - a) * (c - b))
+        U_act < F_act,
+        a_act + np.sqrt(U_act * (c_act - a_act) * (b_act - a_act)),
+        c_act - np.sqrt((1 - U_act) * (c_act - a_act) * (c_act - b_act))
     )
-    base_duration_with_uncertainty = base_duration * (1 + activity_uncertainty)
+    base_duration_with_uncertainty = activity_uncertainty
     
     risk_names = risk_df['Risk Name'].tolist()
     risk_types = risk_df['Type'].tolist()
@@ -3259,6 +3273,105 @@ else:
     st.metric("Manual Schedule Contingency", f"{manual_contingency:.0f} days")
 
 st.markdown('</div>', unsafe_allow_html=True)
+
+# ============================================================================
+# POWER BI INTEGRATION
+# ============================================================================
+st.markdown('<div class="card">', unsafe_allow_html=True)
+st.markdown('<div class="card-title">📊 POWER BI INTEGRATION</div>', unsafe_allow_html=True)
+
+st.markdown("""
+**Power BI Integration Guide:**
+1. Export your simulation data to CSV.
+2. Download the Power BI Template Excel file.
+3. Open the Excel file in Power BI (Get Data → Excel).
+4. Power BI will auto-detect tables and relationships.
+5. Create your dashboard visuals using the provided tables.
+""")
+
+col_pb1, col_pb2 = st.columns(2)
+
+with col_pb1:
+    if st.button("📈 EXPORT SIMULATION DATA (CSV)", use_container_width=True):
+        if st.session_state.simulation_details is not None:
+            powerbi_df = st.session_state.simulation_details.copy()
+            output = io.BytesIO()
+            powerbi_df.to_csv(output, index=False)
+            output.seek(0)
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            st.download_button(label="DOWNLOAD CSV", data=output, file_name=f"powerbi_risk_data_{timestamp}.csv", mime="text/csv", key="powerbi_export")
+            st.success("CSV exported successfully!")
+        else:
+            st.warning("Run simulation first to export data")
+
+with col_pb2:
+    if st.button("🔌 GENERATE POWER BI TEMPLATE (EXCEL)", use_container_width=True):
+        try:
+            powerbi_buffer = io.BytesIO()
+            with pd.ExcelWriter(powerbi_buffer, engine='openpyxl') as writer:
+                if st.session_state.simulation_details is not None:
+                    st.session_state.simulation_details.to_excel(writer, sheet_name='Simulation_Data', index=False)
+                else:
+                    placeholder_df = pd.DataFrame({
+                        'Iteration': [1, 2], 'Duration (days)': [project_duration, project_duration], 
+                        'Cost': [direct_cost + indirect_cost, direct_cost + indirect_cost]
+                    })
+                    placeholder_df.to_excel(writer, sheet_name='Simulation_Data', index=False)
+                
+                st.session_state.risk_factors.to_excel(writer, sheet_name='Risk_Register', index=False)
+                
+                risk_names = st.session_state.risk_factors['Risk Name'].tolist()
+                corr_matrix_export = make_positive_definite(corr_matrix)
+                corr_df = pd.DataFrame(corr_matrix_export, index=risk_names, columns=risk_names)
+                corr_df.to_excel(writer, sheet_name='Correlation_Matrix')
+                
+                metadata = pd.DataFrame({
+                    'Parameter': ['Project Name', 'Duration', 'Direct Cost', 'Indirect Rate', 'Generated On'],
+                    'Value': [project_name, project_duration, direct_cost, indirect_rate, datetime.now().strftime('%Y-%m-%d %H:%M:%S')]
+                })
+                metadata.to_excel(writer, sheet_name='Metadata', index=False)
+                
+                readme_data = pd.DataFrame({
+                    'Table': ['Simulation_Data', 'Risk_Register', 'Correlation_Matrix', 'Metadata'],
+                    'Description': [
+                        'Monte Carlo simulation results (each row is one iteration)',
+                        'Risk register with probabilities, impacts, and responses',
+                        'Risk correlation matrix for sensitivity analysis',
+                        'Project metadata and parameters'
+                    ],
+                    'Key Columns for Dashboard': [
+                        'Duration (days), Cost',
+                        'Risk Name, Probability, Impact Value',
+                        'All columns (correlation coefficients)',
+                        'Project Name, Duration, Direct Cost'
+                    ]
+                })
+                readme_data.to_excel(writer, sheet_name='README_PowerBI', index=False)
+            
+            powerbi_buffer.seek(0)
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            st.download_button(
+                label="DOWNLOAD POWER BI TEMPLATE",
+                data=powerbi_buffer,
+                file_name=f"powerbi_template_{timestamp}.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                key="powerbi_template"
+            )
+            st.success("Power BI template created! Load this file in Power BI.")
+        except Exception as e:
+            st.error(f"Error creating template: {e}")
+
+st.markdown("**Power BI Dashboard Visuals to Create:**")
+st.markdown("""
+- **Duration Distribution**: Histogram using 'Duration (days)' from Simulation_Data
+- **Cost Distribution**: Histogram using 'Cost' from Simulation_Data
+- **Risk Matrix**: Matrix visual using 'Probability (0-1)' and 'Impact (0-1)' from Risk_Register
+- **S-Curve**: Line chart with cumulative probability
+- **Tornado Chart**: Bar chart of 'Impact (0-1)' by 'Risk Name'
+""")
+
+st.markdown('</div>', unsafe_allow_html=True)
+
 # ============================================================================
 # EXPORT & REPORTING
 # ============================================================================
