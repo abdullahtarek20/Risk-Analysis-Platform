@@ -167,7 +167,7 @@ st.markdown("""
     }
     
     /* ============================================ */
-    /* MOBILE RESPONSIVE FIX - ALL ELEMENTS        */
+    /* MOBILE RESPONSIVE FIX - TABLES NO ZOOM      */
     /* ============================================ */
     @media only screen and (max-width: 768px) {
         /* Prevent zoom on input focus (iOS) */
@@ -175,7 +175,7 @@ st.markdown("""
             font-size: 16px !important;
         }
         
-        /* ===== TABLES ===== */
+        /* Make tables horizontally scrollable instead of zoomed */
         .dataframe, .stDataFrame {
             width: 100% !important;
             overflow-x: auto !important;
@@ -195,7 +195,7 @@ st.markdown("""
             white-space: nowrap !important;
         }
         
-        /* ===== PLOTLY CHARTS ===== */
+        /* Plotly charts responsive */
         .js-plotly-plot, .plotly {
             width: 100% !important;
             max-width: 100% !important;
@@ -208,25 +208,18 @@ st.markdown("""
             height: auto !important;
         }
         
-        /* Force all SVG charts to be responsive */
         svg:not(:root) {
             width: 100% !important;
             height: auto !important;
             max-width: 100% !important;
         }
         
-        /* Make chart containers scrollable if needed */
         .stPlotlyChart {
             width: 100% !important;
             overflow-x: auto !important;
         }
         
-        /* ===== METRICS ===== */
-        .metric-card-value {
-            font-size: 0.9rem !important;
-        }
-        
-        /* ===== CARDS ===== */
+        /* Cards */
         .card {
             padding: 0.75rem !important;
             border-radius: 8px !important;
@@ -236,7 +229,7 @@ st.markdown("""
             font-size: 0.95rem !important;
         }
         
-        /* ===== HEADERS ===== */
+        /* Headers */
         .main-title {
             font-size: 1.4rem !important;
         }
@@ -246,34 +239,34 @@ st.markdown("""
             margin-bottom: 1rem !important;
         }
         
-        /* ===== BUTTONS ===== */
+        /* Buttons */
         .stButton button {
             padding: 0.5rem 0.4rem !important;
             font-size: 0.75rem !important;
         }
         
-        /* ===== FOOTER ===== */
+        /* Footer */
         .footer {
             font-size: 0.55rem !important;
             padding: 0.6rem !important;
         }
         
-        /* ===== SIDEBAR ===== */
+        /* Sidebar */
         section[data-testid="stSidebar"] {
             width: 280px !important;
         }
         
-        /* ===== EXPANDERS ===== */
+        /* Expanders */
         .streamlit-expanderHeader {
             font-size: 0.85rem !important;
         }
         
-        /* ===== NUMBER INPUTS ===== */
+        /* Number inputs */
         .stNumberInput input {
             font-size: 14px !important;
         }
         
-        /* ===== DATA EDITOR ===== */
+        /* Data editor */
         .stDataEditor {
             font-size: 10px !important;
         }
@@ -286,6 +279,25 @@ st.markdown("""
         .stColumn {
             min-width: 100% !important;
             flex: 1 1 100% !important;
+        }
+        
+        /* ======================================== */
+        /* HIDE STREAMLIT FLOATING TOOLBAR ON MOBILE */
+        /* ======================================== */
+        .stApp > header {
+            display: none !important;
+        }
+        
+        [data-testid="stToolbar"] {
+            display: none !important;
+        }
+        
+        .stAppDeployButton {
+            display: none !important;
+        }
+        
+        .stApp > .main {
+            margin-top: 0 !important;
         }
     }
 </style>
