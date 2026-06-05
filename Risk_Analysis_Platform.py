@@ -66,9 +66,9 @@ st.set_page_config(
 # GLOBAL CHART CONFIGURATION
 # ============================================================================
 chart_config = {
-    'scrollZoom': True,
+    'scrollZoom': False,   # ← CHANGE THIS FROM True TO False
     'displayModeBar': True,
-    'responsive': True,  # THIS IS THE KEY FIX FOR MOBILE
+    'responsive': True,
     'modeBarButtonsToRemove': ['lasso2d', 'select2d'],
     'modeBarButtonsToAdd': ['zoomIn', 'zoomOut', 'resetGeo', 'toImage'],
     'displaylogo': False,
