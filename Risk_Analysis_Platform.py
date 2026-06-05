@@ -175,6 +175,28 @@ st.markdown("""
             font-size: 16px !important;
         }
         
+        /* Fix dropdown arrows on mobile - make them smaller */
+        .stSelectbox div[data-baseweb="select"] {
+            min-height: 40px !important;
+        }
+        
+        .stSelectbox svg {
+            width: 16px !important;
+            height: 16px !important;
+        }
+        
+        /* Fix all select/dropdown elements */
+        select, .stSelectbox > div {
+            font-size: 14px !important;
+            padding: 8px !important;
+        }
+        
+        /* Fix arrow button size */
+        .stSelectbox button {
+            min-height: 40px !important;
+            padding: 0 8px !important;
+        }
+        
         /* Make tables horizontally scrollable instead of zoomed */
         .dataframe, .stDataFrame {
             width: 100% !important;
@@ -281,9 +303,7 @@ st.markdown("""
             flex: 1 1 100% !important;
         }
         
-        /* ======================================== */
-        /* HIDE STREAMLIT FLOATING TOOLBAR ON MOBILE */
-        /* ======================================== */
+        /* Hide Streamlit floating toolbar on mobile */
         .stApp > header {
             display: none !important;
         }
