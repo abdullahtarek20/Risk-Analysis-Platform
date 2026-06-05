@@ -166,6 +166,44 @@ st.markdown("""
         font-size: 0.75rem;
     }
     
+    /* ROTATE PROMPT - Shows on mobile portrait mode */
+    .rotate-prompt {
+        display: none;
+    }
+    
+    /* Only show for mobile in portrait orientation */
+    @media (max-width: 768px) and (orientation: portrait) {
+        .rotate-prompt {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: #1e293b;
+            border: 1px solid #3b82f6;
+            border-radius: 12px;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 12px;
+            color: #cbd5e1;
+        }
+        
+        .rotate-prompt::before {
+            content: "🔄";
+            font-size: 16px;
+        }
+        
+        .rotate-prompt::after {
+            content: "Rotate your device for better table view";
+        }
+    }
+    
+    /* Hide prompt when in landscape mode */
+    @media (orientation: landscape) {
+        .rotate-prompt {
+            display: none !important;
+        }
+    }
+    
     /* UNIVERSAL FIX - Make all dropdown arrows smaller */
     .stSelectbox svg,
     [data-baseweb="select"] svg,
