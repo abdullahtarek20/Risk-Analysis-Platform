@@ -2522,6 +2522,9 @@ st.markdown('</div>', unsafe_allow_html=True)
 # ============================================================================
 # RISK CORRELATION MATRIX
 # ============================================================================
+# ============================================================================
+# RISK CORRELATION MATRIX
+# ============================================================================
 st.markdown('<div class="card">', unsafe_allow_html=True)
 st.markdown('<div class="card-title">🔗 Risk Correlation Matrix</div>', unsafe_allow_html=True)
 
@@ -2564,7 +2567,16 @@ fig_corr = px.imshow(
     zmax=1,
     text_auto='.2f'
 )
-fig_corr.update_layout(height=500, paper_bgcolor='#1e293b', plot_bgcolor='#1e293b', font_color='#cbd5e1')
+
+# UPDATE LAYOUT WITH EXPLICIT FONT TO REMOVE ITALIC
+fig_corr.update_layout(
+    height=500,
+    paper_bgcolor='#1e293b',
+    plot_bgcolor='#1e293b',
+    font_color='#cbd5e1',
+    font=dict(family="Arial, sans-serif", size=12, color="#cbd5e1", weight="normal")
+)
+
 st.plotly_chart(fig_corr, use_container_width=True, config=chart_config)
 st.markdown('</div>', unsafe_allow_html=True)
 
