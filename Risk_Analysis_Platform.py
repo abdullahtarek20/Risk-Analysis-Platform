@@ -722,12 +722,12 @@ def get_free_weather(city, country):
 # COMMODITY PRICES FUNCTION - DYNAMIC BY COUNTRY
 # ============================================================================
 def get_commodity_prices(country):
-    """Return commodity prices based on selected country"""
+    """Return commodity prices based on selected country (converted to local currency)"""
     
-    # Base prices in USD
+    # Base prices in USD (realistic market prices as of June 2026)
     base_prices = {'steel': 650, 'cement': 125, 'fuel': 90}
     
-    # Country-specific multipliers (local market factors)
+    # Country-specific market multipliers (local factors beyond exchange rate)
     country_multipliers = {
         "United Arab Emirates": {"steel": 1.05, "cement": 1.10, "fuel": 0.85},
         "Saudi Arabia": {"steel": 1.08, "cement": 1.12, "fuel": 0.80},
@@ -735,32 +735,41 @@ def get_commodity_prices(country):
         "Kuwait": {"steel": 1.07, "cement": 1.12, "fuel": 0.82},
         "Oman": {"steel": 1.12, "cement": 1.08, "fuel": 0.90},
         "Bahrain": {"steel": 1.09, "cement": 1.10, "fuel": 0.87},
-        "Egypt": {"steel": 1.25, "cement": 1.20, "fuel": 1.10},
-        "Turkey": {"steel": 1.20, "cement": 1.15, "fuel": 1.15},
-        "India": {"steel": 1.15, "cement": 1.10, "fuel": 1.08},
-        "Pakistan": {"steel": 1.22, "cement": 1.18, "fuel": 1.12},
-        "United Kingdom": {"steel": 1.30, "cement": 1.25, "fuel": 1.20},
+        "Egypt": {"steel": 1.20, "cement": 1.15, "fuel": 1.10},
+        "Turkey": {"steel": 1.15, "cement": 1.10, "fuel": 1.15},
+        "India": {"steel": 1.10, "cement": 1.08, "fuel": 1.08},
+        "Pakistan": {"steel": 1.15, "cement": 1.12, "fuel": 1.12},
+        "United Kingdom": {"steel": 1.10, "cement": 1.08, "fuel": 1.15},
         "United States": {"steel": 1.00, "cement": 1.00, "fuel": 1.00},
-        "Germany": {"steel": 1.28, "cement": 1.22, "fuel": 1.18},
-        "France": {"steel": 1.27, "cement": 1.21, "fuel": 1.17},
-        "Australia": {"steel": 1.18, "cement": 1.24, "fuel": 1.05},
-        "Canada": {"steel": 1.12, "cement": 1.15, "fuel": 0.95},
-        "Brazil": {"steel": 1.20, "cement": 1.18, "fuel": 1.10},
-        "South Africa": {"steel": 1.18, "cement": 1.20, "fuel": 1.12},
+        "Germany": {"steel": 1.08, "cement": 1.05, "fuel": 1.20},
+        "France": {"steel": 1.08, "cement": 1.05, "fuel": 1.18},
+        "Australia": {"steel": 1.12, "cement": 1.15, "fuel": 1.05},
+        "Canada": {"steel": 1.05, "cement": 1.08, "fuel": 0.95},
+        "Brazil": {"steel": 1.15, "cement": 1.12, "fuel": 1.10},
+        "South Africa": {"steel": 1.10, "cement": 1.12, "fuel": 1.12},
     }
     
     # Get multiplier for selected country, default to 1.0 if not found
     multiplier = country_multipliers.get(country, {"steel": 1.0, "cement": 1.0, "fuel": 1.0})
     
-    # Get currency for the country
+    # Get currency code for the country
     currency_code = country_currency_map.get(country, "USD")
+    
+    # Get exchange rate from your existing currency_rates dictionary
+    exchange_rate = currency_rates.get(currency_code, 1.0)
+    
+    # Get currency symbol
     currency_symbol = currency_symbols.get(currency_code, "$")
     
-    # Calculate local prices
+    # Calculate prices: USD base × market multiplier × exchange rate to local currency
+    steel_local = base_prices['steel'] * multiplier['steel'] * exchange_rate
+    cement_local = base_prices['cement'] * multiplier['cement'] * exchange_rate
+    fuel_local = base_prices['fuel'] * multiplier['fuel'] * exchange_rate
+    
     local_prices = {
-        'steel': base_prices['steel'] * multiplier['steel'],
-        'cement': base_prices['cement'] * multiplier['cement'],
-        'fuel': base_prices['fuel'] * multiplier['fuel'],
+        'steel': steel_local,
+        'cement': cement_local,
+        'fuel': fuel_local,
         'currency': currency_symbol,
         'currency_code': currency_code
     }
