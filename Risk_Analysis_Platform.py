@@ -166,6 +166,18 @@ st.markdown("""
         font-size: 0.75rem;
     }
     
+    /* UNIVERSAL FIX - Make all dropdown arrows smaller */
+    .stSelectbox svg,
+    [data-baseweb="select"] svg,
+    [data-icon="chevron-down"],
+    [data-icon="chevron-up"],
+    div[role="button"] svg {
+        width: 14px !important;
+        height: 14px !important;
+        min-width: 14px !important;
+        min-height: 14px !important;
+    }
+    
     /* ============================================ */
     /* MOBILE RESPONSIVE FIX - TABLES NO ZOOM      */
     /* ============================================ */
@@ -175,26 +187,31 @@ st.markdown("""
             font-size: 16px !important;
         }
         
-        /* Fix dropdown arrows on mobile - make them smaller */
-        .stSelectbox div[data-baseweb="select"] {
-            min-height: 40px !important;
-        }
-        
+        /* STRONG FIX - Make dropdown arrows smaller on mobile */
         .stSelectbox svg {
-            width: 16px !important;
-            height: 16px !important;
+            width: 14px !important;
+            height: 14px !important;
+            min-width: 14px !important;
+            min-height: 14px !important;
         }
         
-        /* Fix all select/dropdown elements */
-        select, .stSelectbox > div {
-            font-size: 14px !important;
-            padding: 8px !important;
+        .stSelectbox [data-baseweb="select"] svg {
+            width: 14px !important;
+            height: 14px !important;
         }
         
-        /* Fix arrow button size */
-        .stSelectbox button {
-            min-height: 40px !important;
-            padding: 0 8px !important;
+        .stSelectbox [data-baseweb="select"] {
+            min-height: 38px !important;
+        }
+        
+        [data-icon="chevron-down"], [data-icon="chevron-up"] {
+            width: 14px !important;
+            height: 14px !important;
+        }
+        
+        .stSelectbox div[role="button"] svg {
+            width: 14px !important;
+            height: 14px !important;
         }
         
         /* Make tables horizontally scrollable instead of zoomed */
