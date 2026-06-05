@@ -66,8 +66,9 @@ st.set_page_config(
 # GLOBAL CHART CONFIGURATION
 # ============================================================================
 chart_config = {
-    'scrollZoom': False,
+    'scrollZoom': True,
     'displayModeBar': True,
+    'responsive': True,  # THIS IS THE KEY FIX FOR MOBILE
     'modeBarButtonsToRemove': ['lasso2d', 'select2d'],
     'modeBarButtonsToAdd': ['zoomIn', 'zoomOut', 'resetGeo', 'toImage'],
     'displaylogo': False,
@@ -80,12 +81,23 @@ chart_config = {
 # ============================================================================
 st.markdown("""
 <style>
+    /* VIEWPORT FIX - PREVENTS ZOOMING ON MOBILE */
+    @viewport {
+        width: device-width;
+        zoom: 1.0;
+    }
+    
+    /* Force mobile viewport */
+    @-ms-viewport { width: device-width; }
+    
     .stApp { background-color: #0f172a; }
     section[data-testid="stSidebar"] { width: 320px !important; }
     .stNumberInput input { text-align: left; }
     .dataframe { text-align: center !important; }
     .dataframe th { text-align: center !important; }
     .dataframe td { text-align: center !important; }
+    
+    /* CARDS */
     .card {
         background-color: #1e293b;
         border-radius: 12px;
@@ -153,7 +165,150 @@ st.markdown("""
         color: #64748b;
         font-size: 0.75rem;
     }
+    
+    /* ============================================ */
+    /* MOBILE RESPONSIVE FIX - ALL ELEMENTS        */
+    /* ============================================ */
+    @media only screen and (max-width: 768px) {
+        /* Prevent zoom on input focus (iOS) */
+        input, textarea, select {
+            font-size: 16px !important;
+        }
+        
+        /* ===== TABLES ===== */
+        .dataframe, .stDataFrame {
+            width: 100% !important;
+            overflow-x: auto !important;
+            display: block !important;
+            font-size: 11px !important;
+        }
+        
+        .dataframe table, .stDataFrame table {
+            width: 100% !important;
+            min-width: 500px !important;
+            font-size: 10px !important;
+        }
+        
+        .dataframe th, .stDataFrame th,
+        .dataframe td, .stDataFrame td {
+            padding: 4px 5px !important;
+            white-space: nowrap !important;
+        }
+        
+        /* ===== PLOTLY CHARTS ===== */
+        .js-plotly-plot, .plotly {
+            width: 100% !important;
+            max-width: 100% !important;
+            overflow-x: auto !important;
+        }
+        
+        .plotly .main-svg {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+        }
+        
+        /* Force all SVG charts to be responsive */
+        svg:not(:root) {
+            width: 100% !important;
+            height: auto !important;
+            max-width: 100% !important;
+        }
+        
+        /* Make chart containers scrollable if needed */
+        .stPlotlyChart {
+            width: 100% !important;
+            overflow-x: auto !important;
+        }
+        
+        /* ===== METRICS ===== */
+        .metric-card-value {
+            font-size: 0.9rem !important;
+        }
+        
+        /* ===== CARDS ===== */
+        .card {
+            padding: 0.75rem !important;
+            border-radius: 8px !important;
+        }
+        
+        .card-title {
+            font-size: 0.95rem !important;
+        }
+        
+        /* ===== HEADERS ===== */
+        .main-title {
+            font-size: 1.4rem !important;
+        }
+        
+        .main-subtitle {
+            font-size: 0.65rem !important;
+            margin-bottom: 1rem !important;
+        }
+        
+        /* ===== BUTTONS ===== */
+        .stButton button {
+            padding: 0.5rem 0.4rem !important;
+            font-size: 0.75rem !important;
+        }
+        
+        /* ===== FOOTER ===== */
+        .footer {
+            font-size: 0.55rem !important;
+            padding: 0.6rem !important;
+        }
+        
+        /* ===== SIDEBAR ===== */
+        section[data-testid="stSidebar"] {
+            width: 280px !important;
+        }
+        
+        /* ===== EXPANDERS ===== */
+        .streamlit-expanderHeader {
+            font-size: 0.85rem !important;
+        }
+        
+        /* ===== NUMBER INPUTS ===== */
+        .stNumberInput input {
+            font-size: 14px !important;
+        }
+        
+        /* ===== DATA EDITOR ===== */
+        .stDataEditor {
+            font-size: 10px !important;
+        }
+        
+        /* Force all containers to respect mobile width */
+        .row-widget, .stHorizontalBlock {
+            flex-wrap: wrap !important;
+        }
+        
+        .stColumn {
+            min-width: 100% !important;
+            flex: 1 1 100% !important;
+        }
+    }
 </style>
+
+<script>
+    /* JavaScript to force Plotly charts to be responsive on mobile */
+    window.addEventListener('resize', function() {
+        var plotlyElements = document.querySelectorAll('.js-plotly-plot');
+        plotlyElements.forEach(function(el) {
+            if (el && el.layout) {
+                Plotly.relayout(el, {width: el.parentElement.clientWidth});
+            }
+        });
+    });
+    document.addEventListener('DOMContentLoaded', function() {
+        var plotlyElements = document.querySelectorAll('.js-plotly-plot');
+        plotlyElements.forEach(function(el) {
+            if (el && el.parentElement) {
+                Plotly.relayout(el, {width: el.parentElement.clientWidth});
+            }
+        });
+    });
+</script>
 """, unsafe_allow_html=True)
 
 # ============================================================================
