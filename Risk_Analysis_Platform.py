@@ -1979,7 +1979,11 @@ with st.sidebar:
     else:
         default_indirect_rate = 7540
     
-    st.info(f"Loaded: {default_duration} days | ${default_total_cost:,.0f}")
+    # Show import status
+    if st.session_state.p6_activities is not None:
+        st.success(f"📊 P6 Imported: {default_duration} days | ${default_total_cost:,.0f}")
+    else:
+        st.info("💡 Import Primavera P6 Excel file above or edit parameters below")
     
     version = st.session_state.sidebar_version
     
